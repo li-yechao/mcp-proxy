@@ -29,9 +29,18 @@ LABEL org.opencontainers.image.source=https://github.com/sparfenyuk/mcp-proxy
 LABEL org.opencontainers.image.description="Connect to MCP servers that run on SSE transport, or expose stdio servers as an SSE server using the MCP Proxy server."
 LABEL org.opencontainers.image.licenses=MIT
 
+# Install Node.js and npm to run MCP servers that develop with JavaScript
+RUN apk add --update nodejs npm
+
 COPY --from=uv --chown=app:app /app/.venv /app/.venv
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
+
 ENTRYPOINT ["mcp-proxy"]
+
+# Support
+ENV SSE_PORT=3000
+ENV COMMAND=""
+CMD ["sh", "-c", "--", "mcp-proxy --sse-port $SSE_PORT --sse-host 0.0.0.0 --env PATH $PATH -- $COMMAND"]
