@@ -10,6 +10,9 @@ ENV UV_COMPILE_BYTECODE=1
 # Copy from the cache instead of linking since it's a mounted volume
 ENV UV_LINK_MODE=copy
 
+# Install Node.js and npm to run MCP servers that develop with JavaScript
+RUN apk add --update nodejs npm
+
 # Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
@@ -34,4 +37,10 @@ COPY --from=uv --chown=app:app /app/.venv /app/.venv
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
+
 ENTRYPOINT ["mcp-proxy"]
+
+# Support
+ENV SSE_PORT=3000
+ENV COMMAND=""
+CMD ["sh", "-c", "--", "mcp-proxy --sse-port $SSE_PORT $COMMAND"]
